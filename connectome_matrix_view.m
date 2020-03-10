@@ -1,3 +1,6 @@
+% use this function to load the 'connectome.csv' file and quickly
+% visualize the connectivity matrix (n.of streamlines connecting
+% the brain regions, scaled per volume and zero-diagonal)
 C = load ('./connectome.csv');
 imagesc(C);
 set(gca, 'XTick', 1:84);
