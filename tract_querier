@@ -1,0 +1,148 @@
+TDL
+
+-1 tractography Corpus Callosum
+
+-2 upload logs
+
+-3 upload subjs
+
+How to do arcuate and uncinate: 
+-1 create dictionary for all brain ROIS
+-2 apply tract querier
+
+
+
+#Creating Corpus Callosum 7 parcels 
+
+#=====================================================================
+#CC_1 (Rostrum)
+
+mrcalc aparc_parcels_coreg_32.mif 11 -eq L_lorb.mif
+mrcalc aparc_parcels_coreg_32.mif 13 -eq L_morb.mif
+mrcalc L_lorb.mif L_morb.mif -max L_orb.mif
+
+mrcalc aparc_parcels_coreg_32.mif 60 -eq R_lorb.mif
+mrcalc aparc_parcels_coreg_32.mif 62 -eq R_morb.mif
+mrcalc R_lorb.mif R_morb.mif -max R_orb.mif
+
+tckedit -ends_only -include L_orb.mif -include R_orb.mif -tck_weights_in weights_1mio.csv tracks_1mio.tck CC_1.tck 
+
+#mrview T1_coreg.mif -tractography.load CC_1.tck
+
+#=====================================================================
+#CC_2 (Genu)
+
+mrcalc aparc_parcels_coreg_32.mif 19 -eq L_ptri.mif
+mrcalc aparc_parcels_coreg_32.mif 18 -eq L_porb.mif
+mrcalc aparc_parcels_coreg_32.mif 26 -eq L_rosmidfrontal.mif
+mrcalc aparc_parcels_coreg_32.mif 27 -eq L_superfrontal.mif
+mrcalc aparc_parcels_coreg_32.mif 31 -eq L_frontalpole.mif
+mrcalc L_ptri.mif L_porb.mif -add L_rosmidfrontal.mif -add L_superfrontal.mif -add L_frontalpole.mif -add L_genu.mif
+
+mrcalc aparc_parcels_coreg_32.mif 68 -eq R_ptri.mif
+mrcalc aparc_parcels_coreg_32.mif 67 -eq R_porb.mif
+mrcalc aparc_parcels_coreg_32.mif 75 -eq R_rosmidfrontal.mif
+mrcalc aparc_parcels_coreg_32.mif 76 -eq R_superfrontal.mif
+mrcalc aparc_parcels_coreg_32.mif 80 -eq R_frontalpole.mif
+mrcalc R_ptri.mif R_porb.mif -add R_rosmidfrontal.mif -add R_superfrontal.mif -add R_frontalpole.mif -add R_genu.mif
+
+tckedit -ends_only -include L_genu.mif -include R_genu.mif -tck_weights_in weights_1mio.csv tracks_1mio.tck CC_2.tck
+
+#=====================================================================
+#CC_3 (Rostral body)
+
+mrcalc aparc_parcels_coreg_32.mif 25 -eq L_rACC.mif
+mrcalc aparc_parcels_coreg_32.mif 2 -eq L_cACC.mif
+mrcalc aparc_parcels_coreg_32.mif 3 -eq L_caumidfrontal.mif
+mrcalc aparc_parcels_coreg_32.mif 17 -eq L_pope.mif
+mrcalc L_rACC.mif L_cACC.mif -add L_caumidfrontal.mif -add L_pope.mif -add L_rostr_body.mif
+
+mrcalc aparc_parcels_coreg_32.mif 74 -eq R_rACC.mif
+mrcalc aparc_parcels_coreg_32.mif 51 -eq R_cACC.mif
+mrcalc aparc_parcels_coreg_32.mif 52 -eq R_caumidfrontal.mif
+mrcalc aparc_parcels_coreg_32.mif 66 -eq R_pope.mif
+mrcalc R_rACC.mif R_cACC.mif -add R_caumidfrontal.mif -add R_pope.mif -add R_rostr_body.mif
+
+tckedit -ends_only -include L_rostr_body.mif -include R_rostr_body.mif -tck_weights_in weights_1mio.csv tracks_1mio.tck CC_3.tck
+
+#=====================================================================
+#CC_4 (Anterior Midbody)
+
+mrcalc aparc_parcels_coreg_32.mif 23 -eq L_precentral.mif
+mrcalc aparc_parcels_coreg_32.mif 72 -eq R_precentral.mif
+
+tckedit -ends_only -include L_precentral.mif -include R_precentral.mif -tck_weights_in weights_1mio.csv tracks_1mio.tck CC_4.tck
+
+#=====================================================================
+#Creating Corpus Callosum mask
+#ATTENTION! check folder
+labelconvert ../fs_subj/mri/wmparc.mgz $FREESURFER_HOME/FreeSurferColorLUT.txt $FREESURFER_HOME/FreeSurferColorLUT.txt wmparc.mif
+mrtransform wmparc.mif -linear ../diff2aparc_mrtrix.txt -inverse wmparc_coreg.mif 
+mrcalc wmparc_coreg.mif 251 -eq CC_Posterior.mif
+mrcalc wmparc_coreg.mif 252 -eq CC_Mid_Posterior.mif
+mrcalc wmparc_coreg.mif 253 -eq CC_Central.mif
+mrcalc wmparc_coreg.mif 254 -eq CC_Mid_Anterior.mif
+mrcalc wmparc_coreg.mif 255 -eq CC_Anterior.mif
+
+mrcalc CC_Posterior.mif CC_Mid_Posterior.mif -add  CC_Central.mif -add CC_Mid_Anterior.mif -add CC_Anterior.mif -add CC_mask.mif
+
+#=====================================================================
+#CC_5 (Posterior Midbody)
+#cc_5 = endpoints_in(postcentral.left or posteriorcingulate.left or paracentral.left) and endpoints_in(postcentral.right or posteriorcingulate.right or paracentral.right) and corpuscallosum.left and #corpuscallosum.right
+
+mrcalc aparc_parcels_coreg_32.mif 21 -eq L_postcentral.mif
+mrcalc aparc_parcels_coreg_32.mif 16 -eq L_paracentral.mif
+mrcalc aparc_parcels_coreg_32.mif 22 -eq L_PCC.mif
+mrcalc L_postcentral.mif L_paracentral.mif -add L_PCC.mif -add L_PostMidbody.mif
+
+mrcalc aparc_parcels_coreg_32.mif 70 -eq R_postcentral.mif
+mrcalc aparc_parcels_coreg_32.mif 65 -eq R_paracentral.mif
+mrcalc aparc_parcels_coreg_32.mif 71 -eq R_PCC.mif
+mrcalc R_postcentral.mif R_paracentral.mif -add R_PCC.mif -add R_PostMidbody.mif
+
+tckedit -include CC_mask.mif -tck_weights_in weights_1mio.csv tracks_1mio.tck CC_track.tck
+tckedit -ends_only -include L_PostMidbody.mif -include R_PostMidbody.mif CC_track.tck CC_5.tck
+
+#=====================================================================
+#CC_6 (Isthmus)
+
+mrcalc aparc_parcels_coreg_32.mif 24 -eq L_precuneus.mif
+mrcalc aparc_parcels_coreg_32.mif 30 -eq L_supramarginal.mif
+mrcalc aparc_parcels_coreg_32.mif 28 -eq L_superiorparietal.mif
+mrcalc aparc_parcels_coreg_32.mif 7 -eq L_inferiorparietal.mif
+mrcalc aparc_parcels_coreg_32.mif 29 -eq L_superiortemporal.mif
+mrcalc aparc_parcels_coreg_32.mif 14 -eq L_middletemporal.mif
+mrcalc aparc_parcels_coreg_32.mif 1 -eq L_bankssts.mif
+mrcalc aparc_parcels_coreg_32.mif 33 -eq L_transversetemporal.mif
+mrcalc aparc_parcels_coreg_32.mif 9 -eq L_isthmuscingulate.mif
+mrcalc L_precuneus.mif L_supramarginal.mif -add L_superiorparietal.mif -add L_inferiorparietal.mif -add L_superiortemporal.mif -add L_middletemporal.mif -add L_bankssts.mif -add L_transversetemporal.mif -add L_isthmuscingulate.mif -add L_Isthmus.mif
+
+mrcalc aparc_parcels_coreg_32.mif 73 -eq R_precuneus.mif
+mrcalc aparc_parcels_coreg_32.mif 79 -eq R_supramarginal.mif
+mrcalc aparc_parcels_coreg_32.mif 77 -eq R_superiorparietal.mif
+mrcalc aparc_parcels_coreg_32.mif 56 -eq R_inferiorparietal.mif
+mrcalc aparc_parcels_coreg_32.mif 78 -eq R_superiortemporal.mif
+mrcalc aparc_parcels_coreg_32.mif 63 -eq R_middletemporal.mif
+mrcalc aparc_parcels_coreg_32.mif 50 -eq R_bankssts.mif
+mrcalc aparc_parcels_coreg_32.mif 82 -eq R_transversetemporal.mif
+mrcalc aparc_parcels_coreg_32.mif 58 -eq R_isthmuscingulate.mif
+mrcalc R_precuneus.mif R_supramarginal.mif -add R_superiorparietal.mif -add R_inferiorparietal.mif -add R_superiortemporal.mif -add R_middletemporal.mif -add R_bankssts.mif -add R_transversetemporal.mif -add R_isthmuscingulate.mif -add R_Isthmus.mif
+
+tckedit -ends_only -include L_Isthmus.mif -include R_Isthmus.mif CC_track.tck CC_6.tck
+
+#=====================================================================
+#CC_7 (Splenium)
+
+mrcalc aparc_parcels_coreg_32.mif 10 -eq L_lateraloccipital.mif
+mrcalc aparc_parcels_coreg_32.mif 6 -eq L_fusiform.mif
+mrcalc aparc_parcels_coreg_32.mif 12 -eq L_lingual.mif
+mrcalc aparc_parcels_coreg_32.mif 8 -eq L_inferiortemporal.mif
+mrcalc L_lateraloccipital.mif L_fusiform.mif -add L_lingual.mif -add L_inferiortemporal.mif -add L_Splenium.mif
+
+mrcalc aparc_parcels_coreg_32.mif 59 -eq R_lateraloccipital.mif
+mrcalc aparc_parcels_coreg_32.mif 55 -eq R_fusiform.mif
+mrcalc aparc_parcels_coreg_32.mif 61 -eq R_lingual.mif
+mrcalc aparc_parcels_coreg_32.mif 57 -eq R_inferiortemporal.mif
+mrcalc R_lateraloccipital.mif R_fusiform.mif -add R_lingual.mif -add R_inferiortemporal.mif -add R_Splenium.mif
+
+tckedit -ends_only -include L_Splenium.mif -include R_Splenium.mif -tck_weights_in weights_1mio.csv tracks_1mio.tck CC_7.tck
