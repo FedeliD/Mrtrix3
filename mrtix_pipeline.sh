@@ -5,7 +5,7 @@
 #Contact: d.fedeli6campus.unimib.it; fedeli.davide@hsr.it
 #Requirements: MRtrix3; FreeSurfer; fsl
 
-#make shure to set your subject direcory like this:
+#make sure to set your subject direcory like this:
 #
 # .
 # ├── 3DT1 (DICOM directory with T1 structural files)
