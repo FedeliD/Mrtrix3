@@ -262,7 +262,7 @@ mrcalc  L_pop.mif L_por.mif L_ptr.mif  -max merged_IFG.mif
 
 
 #vedo il connettoma
-mrconvert -datatype uint32 apa_parcels_coreg.mif aparc_parcels_coreg_32.mif
+mrconvert -datatype uint32 aparc_parcels_coreg.mif aparc_parcels_coreg_32.mif
 mrview aparc_parcels_coreg.mif -connectome.init aparc_parcels_coreg_32.mif -connectome.load connectome.csv
 
 #se da errore fai mrconvert -datatype uint32 hcpmmp1_parcels_coreg.mif hcpmmp1_parcels_coreg_32.mif e rigira
